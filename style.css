@@ -1,21 +1,10 @@
-/* General Reset */
-body, html {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    background-color: #05070a; /* Deep Charcoal/Black */
-    color: #f8fafc;
-    font-family: 'Inter', sans-serif;
-    scroll-behavior: smooth;
-}
-
-/* 1. TRANSPARENT TOP MENU */
+/* 1. HORIZONTAL TOP MENU & GLASS EFFECT */
 header {
-    background: rgba(13, 17, 23, 0.8); /* 80% transparency */
-    backdrop-filter: blur(15px); /* Frosting effect */
+    background: rgba(13, 17, 23, 0.8); 
+    backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 15px 5%;
+    padding: 10px 5%;
     position: fixed;
     width: 90%;
     top: 0;
@@ -25,77 +14,80 @@ header {
     align-items: center;
 }
 
-/* 2. STRONGER HERO SECTION */
-#hero {
-    height: 100vh;
+nav {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
     align-items: center;
-    text-align: center;
-    /* Multicolored Gradient Glow */
-    background: 
-        radial-gradient(circle at 20% 30%, rgba(58, 134, 255, 0.2), transparent 40%),
-        radial-gradient(circle at 80% 70%, rgba(123, 44, 191, 0.2), transparent 40%),
-        #05070a;
-    padding: 0 10%;
+    width: 100%;
 }
 
-#hero h1 {
-    font-size: 5rem;
-    margin: 0;
-    /* Vibrant Gradient Text */
-    background: linear-gradient(45deg, #ffffff, #3a86ff, #7b2cbf, #06d6a0);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shine 5s linear infinite;
+.logo {
     font-weight: 900;
-}
-
-@keyframes shine {
-    to { background-position: 200% center; }
-}
-
-.subtitle {
-    color: #06d6a0; /* Emerald Green */
-    font-size: 1.4rem;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    margin-top: 10px;
-}
-
-/* 3. TRANSPARENT EXPERIENCE CARDS */
-.card-container {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    padding: 100px 10%;
-    flex-wrap: wrap;
-}
-
-.card {
-    background: rgba(255, 255, 255, 0.05); /* Transparent Card */
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 40px;
-    border-radius: 20px;
-    width: 300px;
-    transition: all 0.4s ease;
-}
-
-/* Color Variability for Each Specialty */
-.card:nth-child(1) { border-left: 5px solid #3a86ff; } /* Research Blue */
-.card:nth-child(2) { border-left: 5px solid #7b2cbf; } /* Clinical Purple */
-.card:nth-child(3) { border-left: 5px solid #06d6a0; } /* Mentorship Green */
-
-.card:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateY(-15px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-}
-
-.card h3 {
-    margin-top: 0;
     font-size: 1.5rem;
+    margin-right: 40px;
+    color: #ffffff;
+}
+
+/* Horizontal alignment for menu items */
+nav ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 10px; /* Space between items */
+}
+
+nav ul li a {
+    color: #f8fafc;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+/* Slightly lighter frosted background on hover */
+nav ul li a:hover {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(5px);
+}
+
+/* 2. ACCESSIBILITY TOOLS BOX (Upper Right) */
+.accessibility-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 8px 15px;
+    border-radius: 12px; /* Soft-cornered box */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-left: auto; /* Pushes it to the far right */
+}
+
+.accessibility-controls::before {
+    content: "Accessibility Tools";
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #06d6a0; /* Emerald green accent */
+    margin-right: 10px;
+    letter-spacing: 1px;
+}
+
+.accessibility-controls button {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.accessibility-controls button:hover {
+    background: #3a86ff;
+}
+
+/* Ensure Google Translate doesn't break the layout */
+#google_translate_element {
+    display: inline-block;
 }
