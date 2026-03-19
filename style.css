@@ -1,4 +1,4 @@
-/* 1. HORIZONTAL TOP MENU & GLASS EFFECT */
+/* Header & Nav Layout */
 header {
     background: rgba(13, 17, 23, 0.8); 
     backdrop-filter: blur(15px);
@@ -6,88 +6,90 @@ header {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding: 10px 5%;
     position: fixed;
-    width: 90%;
+    width: 90%; /* Covers the width while allowing padding */
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 1000;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: center; /* Centers the nav content */
 }
 
 nav {
     display: flex;
     align-items: center;
     width: 100%;
+    max-width: 1400px; /* Keeps content from spreading too far on wide screens */
 }
 
 .logo {
     font-weight: 900;
     font-size: 1.5rem;
-    margin-right: 40px;
     color: #ffffff;
+    margin-right: 30px;
+    white-space: nowrap;
 }
 
-/* Horizontal alignment for menu items */
+/* Horizontal Menu Items */
 nav ul {
-    display: flex;
+    display: flex; /* This aligns items horizontally */
+    flex-direction: row; 
     list-style: none;
     margin: 0;
     padding: 0;
-    gap: 10px; /* Space between items */
+    gap: 5px;
 }
 
 nav ul li a {
     color: #f8fafc;
     text-decoration: none;
-    padding: 10px 20px;
+    padding: 10px 15px;
     border-radius: 8px;
-    transition: all 0.3s ease;
+    transition: background 0.3s ease;
     font-weight: 500;
+    display: block;
 }
 
-/* Slightly lighter frosted background on hover */
+/* Frosted Hover Effect */
 nav ul li a:hover {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(5px);
 }
 
-/* 2. ACCESSIBILITY TOOLS BOX (Upper Right) */
+/* Accessibility Tools Box - Right Aligned */
 .accessibility-controls {
     display: flex;
     align-items: center;
     gap: 12px;
     background: rgba(255, 255, 255, 0.05);
-    padding: 8px 15px;
-    border-radius: 12px; /* Soft-cornered box */
+    padding: 8px 18px;
+    border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    margin-left: auto; /* Pushes it to the far right */
+    margin-left: auto; /* Pushes the box to the right */
 }
 
+/* The "Accessibility Tools" Label */
 .accessibility-controls::before {
     content: "Accessibility Tools";
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
-    color: #06d6a0; /* Emerald green accent */
-    margin-right: 10px;
+    color: #06d6a0; /* Emerald Green */
+    margin-right: 8px;
     letter-spacing: 1px;
+    white-space: nowrap;
 }
 
 .accessibility-controls button {
     background: rgba(255, 255, 255, 0.1);
     border: none;
     color: white;
-    padding: 5px 10px;
+    padding: 6px 12px;
     border-radius: 6px;
     cursor: pointer;
-    transition: background 0.2s;
+    font-size: 0.9rem;
 }
 
 .accessibility-controls button:hover {
-    background: #3a86ff;
-}
-
-/* Ensure Google Translate doesn't break the layout */
-#google_translate_element {
-    display: inline-block;
+    background: #3a86ff; /* Blue accent */
 }
