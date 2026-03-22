@@ -4,116 +4,37 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sam Kalmar</title>
-
-<style>
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    background: #f8f9fb;
-}
-
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 30px;
-    background: white;
-    border-bottom: 1px solid #ddd;
-}
-
-nav a {
-    margin: 0 15px;
-    text-decoration: none;
-    color: black;
-}
-
-.logo {
-    font-weight: bold;
-}
-
-.hero {
-    padding: 80px 30px;
-    text-align: center;
-    background: #111;
-    color: white;
-}
-
-.cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    padding: 40px;
-}
-
-.card {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-}
-
-.tools {
-    padding: 10px;
-    text-align: center;
-}
-</style>
+<link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-
 <header>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="projects.html">Projects</a>
-        <a href="experience.html">Experience</a>
-        <a href="contact.html">Contact</a>
-    </nav>
-    <div class="logo">SK</div>
+<nav>
+<a href="index.html">Home</a>
+<a href="projects.html">Projects</a>
+<a href="experience.html">Experience</a>
+<a href="contact.html">Contact</a>
+</nav>
+<div class="logo">SK</div>
 </header>
 
-<div class="tools">
-    <button onclick="speak()">Text-to-Audio</button>
-    <button onclick="toggleFont()">Dyslexia Font</button>
-</div>
-
 <section class="hero">
-    <h1>Sam Kalmar</h1>
-    <p>PhD Student | Industrial-Organizational Psychology</p>
-    <p>Evidence Synthesis • Data Analysis • Research Leadership</p>
+<h1>Sam Kalmar</h1>
+<p>Industrial-Organizational Psychology PhD Student | Researcher</p>
 </section>
 
 <section class="cards">
-    <div class="card">
-        <h3>Research Focus</h3>
-        <p>Evidence synthesis, occupational health psychology, and advanced statistical modeling (HLM, ANOVA, CFA).</p>
-    </div>
-
-    <div class="card">
-        <h3>Current Role</h3>
-        <p>Graduate Assistant at Virginia Tech Faculty Affairs. Conducts survey design, reporting, and faculty search support.</p>
-    </div>
-
-    <div class="card">
-        <h3>Clinical Background</h3>
-        <p>200+ participant sessions in psychopharmacology research, including phlebotomy, EKG, and protocol design.</p>
-    </div>
-
-    <div class="card">
-        <h3>Publications</h3>
-        <p>Published in Drug and Alcohol Dependence and TIP with work on biosensors and IO psychology policy.</p>
-    </div>
+<div class="card">
+<h3>Research</h3>
+<p>Evidence synthesis and advanced statistical modeling.</p>
+</div>
+<div class="card">
+<h3>Clinical Work</h3>
+<p>Extensive psychopharmacology and clinical research experience.</p>
+</div>
+<div class="card">
+<h3>Leadership</h3>
+<p>Mentorship and team leadership across research environments.</p>
+</div>
 </section>
-
-<script>
-function speak() {
-    const text = document.body.innerText;
-    const speech = new SpeechSynthesisUtterance(text);
-    speechSynthesis.speak(speech);
-}
-
-function toggleFont() {
-    document.body.style.fontFamily = "OpenDyslexic, Arial";
-}
-</script>
-
 </body>
 </html>
