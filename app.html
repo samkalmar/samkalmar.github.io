@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Orientation Analyzer</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Agentic vs Communal Job Analyzer</h1>
+
+<input type="text" id="jobInput" placeholder="Enter Job Title or O*NET Code" />
+<br>
+<button onclick="analyzeJob()">Analyze</button>
+
+<div class="result" id="output"></div>
+<canvas id="chart"></canvas>
+
+<script>
+let workbookData = {};
+let chart;
+
+// Preload dataset (place xlsx in same folder)
+fetch('Objective Work Activities.xlsx')
+  .then(res => res.arrayBuffer())
+  .then(data => {
+    const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
+    workbook.SheetNames.forEach(name => {
+      workbookData[name] = XLSX.utils.sheet_to_json(workbook.Sheets[name]);
+    });
+    console.log('Dataset loaded');
+  });
+
+function getRawScore(sheetNames, query) {
+  let scores = [];
+
+  sheetNames.forEach(sheet => {
+    (workbookData[sheet] || []).forEach(row => {
+      if (
+        row['Title']?.toLowerCase().includes(query) ||
+        row['O*NET-SOC Code']?.includes(query)
+      ) {
+        const importance = parseFloat(row['Importance']) || 0;
+        const level = parseFloat(row['Level']) || 0;
+        scores.push(importance * level);
+      }
+    });
+  });
+
+  return scores;
+}
+
+function normalize(scores) {
+  if (scores.length === 0) return 0;
+  const min = Math.min(...scores);
+  const max = Math.max(...scores);
+  const avg = scores.reduce((a,b)=>a+b,0)/scores.length;
+
+  if (max === min) return 0.5; // avoid divide by zero
+  return (avg - min) / (max - min);
+}
+
+function analyzeJob() {
+  const query = document.getElementById('jobInput').value.toLowerCase();
+
+  const agenticSheets = ['A1','A2','A3','A4','A5','A6','A7'];
+  const communalSheets = ['C1','C2','C3','C4','C5'];
+
+  const agenticRaw = getRawScore(agenticSheets, query);
+  const communalRaw = getRawScore(communalSheets, query);
+
+  const agenticScore = normalize(agenticRaw);
+  const communalScore = normalize(communalRaw);
+
+  let result = '';
+  if (agenticScore > communalScore) {
+    result = 'More Agentic';
+  } else if (communalScore > agenticScore) {
+    result = 'More Communal';
+  } else {
+    result = 'Balanced';
+  }
+
+  document.getElementById('output').innerText =
+    `${result} (Agentic: ${agenticScore.toFixed(2)} | Communal: ${communalScore.toFixed(2)})`;
+
+  renderChart(agenticScore, communalScore);
+}
+
+function renderChart(agentic, communal) {
+  const ctx = document.getElementById('chart');
+
+  if (chart) chart.destroy();
+
+  chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Agentic', 'Communal'],
+      datasets: [{
+        label: 'Normalized Score',
+        data: [agentic, communal]
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 1
+        }
+      }
+    }
+  });
+}
+</script>
+
+</body>
+</html>
