@@ -40,8 +40,8 @@ let workbookData = {};
 let chart;
 let dataLoaded = false;
 
-// 🔥 IMPORTANT: rename file to remove spaces OR update path
-const FILE_PATH = "Objective_Work_Activities.xlsx";
+// 🔥 Updated to match the new workbook name
+const FILE_PATH = "Objective_Work_Activities_App.xlsx";
 
 // Load dataset
 fetch(FILE_PATH)
@@ -81,32 +81,42 @@ function levenshtein(a, b) {
   return matrix[b.length][a.length];
 }
 
-// Find similar titles
+// Find similar titles (Updated to use 'Occupation' and 'Code')
 function findSimilarJobs(query) {
-  let titles = new Set();
+  let jobs = new Map();
 
   Object.values(workbookData).forEach(sheet => {
     sheet.forEach(row => {
-      if (row['Title']) titles.add(row['Title']);
+      if (row['Occupation']) {
+        jobs.set(row['Occupation'], row['Code']); // Map Occupation to its O*NET Code
+      }
     });
   });
 
-  return Array.from(titles)
-    .map(title => ({
-      title,
-      score: levenshtein(query, title.toLowerCase())
-    }))
+  return Array.from(jobs.keys())
+    .map(occupation => {
+      const code = jobs.get(occupation) ? String(jobs.get(occupation)).toLowerCase() : "";
+      
+      // Prioritize exact O*NET Code match, otherwise calculate string similarity to Job Title
+      const score = query === code ? 0 : levenshtein(query, occupation.toLowerCase());
+      
+      return {
+        title: occupation,
+        score: score
+      };
+    })
     .sort((a,b) => a.score - b.score)
     .slice(0,5);
 }
 
-// Score calc
+// Score calc (Updated to check against 'Occupation' column)
 function getRawScore(sheetNames, jobTitle) {
   let scores = [];
 
   sheetNames.forEach(sheet => {
     (workbookData[sheet] || []).forEach(row => {
-      if (row['Title'] === jobTitle) {
+      if (row['Occupation'] === jobTitle) {
+        // parseFloat safely handles textual labels like "Not available" turning them to 0
         const i = parseFloat(row['Importance']) || 0;
         const l = parseFloat(row['Level']) || 0;
         scores.push(i * l);
@@ -134,7 +144,7 @@ function analyzeJob() {
     return;
   }
 
-  const query = document.getElementById('jobInput').value.toLowerCase();
+  const query = document.getElementById('jobInput').value.toLowerCase().trim();
 
   const agenticSheets = ['A1','A2','A3','A4','A5','A6','A7'];
   const communalSheets = ['C1','C2','C3','C4','C5'];
@@ -177,7 +187,11 @@ function renderChart(a, c) {
     type: "bar",
     data: {
       labels: ["Agentic","Communal"],
-      datasets: [{ label:"Score", data:[a,c] }]
+      datasets: [{ 
+        label: "Score", 
+        data: [a,c],
+        backgroundColor: ["#1e88e5", "#e53935"] // Added some basic coloring to distinguish bars
+      }]
     },
     options: {
       scales: { y: { beginAtZero:true, max:1 } }
