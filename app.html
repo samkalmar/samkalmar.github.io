@@ -18,20 +18,21 @@
 </nav>
 <div class="logo">SK</div>
   
-<h1>Agentic vs Communal Job Analyzer</h1>
+<h1>Job Orientation Analyzer</h1>
 
 <input type="text" id="jobInput" placeholder="Enter Job Title or O*NET Code" />
 <br>
 <button onclick="analyzeJob()">Analyze</button>
 
 <div class="result" id="output"></div>
+<div id="matches"></div>
 <canvas id="chart"></canvas>
 
 <script>
 let workbookData = {};
 let chart;
 
-// Preload dataset (place xlsx in same folder)
+// Preload dataset
 fetch('Objective Work Activities.xlsx')
   .then(res => res.arrayBuffer())
   .then(data => {
@@ -42,15 +43,55 @@ fetch('Objective Work Activities.xlsx')
     console.log('Dataset loaded');
   });
 
-function getRawScore(sheetNames, query) {
+// Levenshtein distance
+function levenshtein(a, b) {
+  const matrix = Array.from({ length: b.length + 1 }, () => []);
+  for (let i = 0; i <= b.length; i++) matrix[i][0] = i;
+  for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
+      }
+    }
+  }
+  return matrix[b.length][a.length];
+}
+
+// Find similar job titles
+function findSimilarJobs(query) {
+  let titles = new Set();
+
+  Object.values(workbookData).forEach(sheet => {
+    sheet.forEach(row => {
+      if (row['Title']) titles.add(row['Title']);
+    });
+  });
+
+  let scored = Array.from(titles).map(title => {
+    return {
+      title,
+      score: levenshtein(query, title.toLowerCase())
+    };
+  });
+
+  scored.sort((a,b) => a.score - b.score);
+  return scored.slice(0, 5); // top 5 matches
+}
+
+function getRawScore(sheetNames, jobTitle) {
   let scores = [];
 
   sheetNames.forEach(sheet => {
     (workbookData[sheet] || []).forEach(row => {
-      if (
-        row['Title']?.toLowerCase().includes(query) ||
-        row['O*NET-SOC Code']?.includes(query)
-      ) {
+      if (row['Title'] === jobTitle) {
         const importance = parseFloat(row['Importance']) || 0;
         const level = parseFloat(row['Level']) || 0;
         scores.push(importance * level);
@@ -67,7 +108,7 @@ function normalize(scores) {
   const max = Math.max(...scores);
   const avg = scores.reduce((a,b)=>a+b,0)/scores.length;
 
-  if (max === min) return 0.5; // avoid divide by zero
+  if (max === min) return 0.5;
   return (avg - min) / (max - min);
 }
 
@@ -77,25 +118,42 @@ function analyzeJob() {
   const agenticSheets = ['A1','A2','A3','A4','A5','A6','A7'];
   const communalSheets = ['C1','C2','C3','C4','C5'];
 
-  const agenticRaw = getRawScore(agenticSheets, query);
-  const communalRaw = getRawScore(communalSheets, query);
+  const matches = findSimilarJobs(query);
 
-  const agenticScore = normalize(agenticRaw);
-  const communalScore = normalize(communalRaw);
+  let outputHTML = '<h3>Closest Matches</h3>';
 
-  let result = '';
-  if (agenticScore > communalScore) {
-    result = 'More Agentic';
-  } else if (communalScore > agenticScore) {
-    result = 'More Communal';
-  } else {
-    result = 'Balanced';
+  matches.forEach(match => {
+    const agenticRaw = getRawScore(agenticSheets, match.title);
+    const communalRaw = getRawScore(communalSheets, match.title);
+
+    const agenticScore = normalize(agenticRaw);
+    const communalScore = normalize(communalRaw);
+
+    outputHTML += `<p><strong>${match.title}</strong>: A=${agenticScore.toFixed(2)}, C=${communalScore.toFixed(2)}</p>`;
+  });
+
+  document.getElementById('matches').innerHTML = outputHTML;
+
+  // Use best match for main result + chart
+  if (matches.length > 0) {
+    const best = matches[0].title;
+
+    const agenticRaw = getRawScore(agenticSheets, best);
+    const communalRaw = getRawScore(communalSheets, best);
+
+    const agenticScore = normalize(agenticRaw);
+    const communalScore = normalize(communalRaw);
+
+    let result = '';
+    if (agenticScore > communalScore) result = 'More Agentic';
+    else if (communalScore > agenticScore) result = 'More Communal';
+    else result = 'Balanced';
+
+    document.getElementById('output').innerText =
+      `${result} (${best}) | A: ${agenticScore.toFixed(2)} vs C: ${communalScore.toFixed(2)}`;
+
+    renderChart(agenticScore, communalScore);
   }
-
-  document.getElementById('output').innerText =
-    `${result} (Agentic: ${agenticScore.toFixed(2)} | Communal: ${communalScore.toFixed(2)})`;
-
-  renderChart(agenticScore, communalScore);
 }
 
 function renderChart(agentic, communal) {
