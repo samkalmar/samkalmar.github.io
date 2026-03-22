@@ -4,46 +4,68 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>S. Kalmar | JO App</title>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-<nav>
-<a href="index.html">Home</a>
-<a href="projects.html">Projects</a>
-<a href="experience.html">Experience</a>
-<a href="contact.html">Contact</a>
-<a href="app.html">JO App<a/>
-</nav>
-<div class="logo">SK</div>
-  
+
+<header>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="projects.html">Projects</a>
+    <a href="experience.html">Experience</a>
+    <a href="contact.html">Contact</a>
+    <a href="app.html">JO App</a>
+  </nav>
+  <div class="logo">SK</div>
+</header>
+
+<section>
 <h1>Job Orientation Analyzer</h1>
 
-<input type="text" id="jobInput" placeholder="Enter Job Title or O*NET Code" />
-<br>
+<input type="text" id="jobInput" placeholder="Enter Job Title or O*NET Code">
 <button onclick="analyzeJob()">Analyze</button>
 
 <div class="result" id="output"></div>
 <div id="matches"></div>
 <canvas id="chart"></canvas>
+</section>
 
 <script>
 let workbookData = {};
 let chart;
+let dataLoaded = false;
 
-// Preload dataset
-fetch('Objective Work Activities.xlsx')
-  .then(res => res.arrayBuffer())
+// 🔥 IMPORTANT: rename file to remove spaces OR update path
+const FILE_PATH = "Objective_Work_Activities.xlsx";
+
+// Load dataset
+fetch(FILE_PATH)
+  .then(res => {
+    if (!res.ok) throw new Error("File not found");
+    return res.arrayBuffer();
+  })
   .then(data => {
     const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
+
     workbook.SheetNames.forEach(name => {
       workbookData[name] = XLSX.utils.sheet_to_json(workbook.Sheets[name]);
     });
-    console.log('Dataset loaded');
+
+    dataLoaded = true;
+    console.log("Dataset loaded:", Object.keys(workbookData));
+  })
+  .catch(err => {
+    console.error("ERROR LOADING EXCEL:", err);
+    alert("Dataset failed to load. Check file name/path.");
   });
 
-// Levenshtein distance
+
+// Levenshtein
 function levenshtein(a, b) {
   const matrix = Array.from({ length: b.length + 1 }, () => []);
   for (let i = 0; i <= b.length; i++) matrix[i][0] = i;
@@ -51,21 +73,15 @@ function levenshtein(a, b) {
 
   for (let i = 1; i <= b.length; i++) {
     for (let j = 1; j <= a.length; j++) {
-      if (b.charAt(i - 1) === a.charAt(j - 1)) {
-        matrix[i][j] = matrix[i - 1][j - 1];
-      } else {
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j - 1] + 1,
-          matrix[i][j - 1] + 1,
-          matrix[i - 1][j] + 1
-        );
-      }
+      matrix[i][j] = b[i-1] === a[j-1]
+        ? matrix[i-1][j-1]
+        : Math.min(matrix[i-1][j-1]+1, matrix[i][j-1]+1, matrix[i-1][j]+1);
     }
   }
   return matrix[b.length][a.length];
 }
 
-// Find similar job titles
+// Find similar titles
 function findSimilarJobs(query) {
   let titles = new Set();
 
@@ -75,26 +91,25 @@ function findSimilarJobs(query) {
     });
   });
 
-  let scored = Array.from(titles).map(title => {
-    return {
+  return Array.from(titles)
+    .map(title => ({
       title,
       score: levenshtein(query, title.toLowerCase())
-    };
-  });
-
-  scored.sort((a,b) => a.score - b.score);
-  return scored.slice(0, 5); // top 5 matches
+    }))
+    .sort((a,b) => a.score - b.score)
+    .slice(0,5);
 }
 
+// Score calc
 function getRawScore(sheetNames, jobTitle) {
   let scores = [];
 
   sheetNames.forEach(sheet => {
     (workbookData[sheet] || []).forEach(row => {
       if (row['Title'] === jobTitle) {
-        const importance = parseFloat(row['Importance']) || 0;
-        const level = parseFloat(row['Level']) || 0;
-        scores.push(importance * level);
+        const i = parseFloat(row['Importance']) || 0;
+        const l = parseFloat(row['Level']) || 0;
+        scores.push(i * l);
       }
     });
   });
@@ -103,16 +118,22 @@ function getRawScore(sheetNames, jobTitle) {
 }
 
 function normalize(scores) {
-  if (scores.length === 0) return 0;
+  if (!scores.length) return 0;
   const min = Math.min(...scores);
   const max = Math.max(...scores);
   const avg = scores.reduce((a,b)=>a+b,0)/scores.length;
 
-  if (max === min) return 0.5;
-  return (avg - min) / (max - min);
+  return max === min ? 0.5 : (avg - min)/(max - min);
 }
 
+// Main
 function analyzeJob() {
+
+  if (!dataLoaded) {
+    alert("Dataset still loading — try again in a second.");
+    return;
+  }
+
   const query = document.getElementById('jobInput').value.toLowerCase();
 
   const agenticSheets = ['A1','A2','A3','A4','A5','A6','A7'];
@@ -120,63 +141,46 @@ function analyzeJob() {
 
   const matches = findSimilarJobs(query);
 
-  let outputHTML = '<h3>Closest Matches</h3>';
+  let html = "<h3>Closest Matches</h3>";
 
-  matches.forEach(match => {
-    const agenticRaw = getRawScore(agenticSheets, match.title);
-    const communalRaw = getRawScore(communalSheets, match.title);
+  matches.forEach(m => {
+    const a = normalize(getRawScore(agenticSheets, m.title));
+    const c = normalize(getRawScore(communalSheets, m.title));
 
-    const agenticScore = normalize(agenticRaw);
-    const communalScore = normalize(communalRaw);
-
-    outputHTML += `<p><strong>${match.title}</strong>: A=${agenticScore.toFixed(2)}, C=${communalScore.toFixed(2)}</p>`;
+    html += `<p><strong>${m.title}</strong>: A=${a.toFixed(2)}, C=${c.toFixed(2)}</p>`;
   });
 
-  document.getElementById('matches').innerHTML = outputHTML;
+  document.getElementById("matches").innerHTML = html;
 
-  // Use best match for main result + chart
-  if (matches.length > 0) {
+  if (matches.length) {
     const best = matches[0].title;
 
-    const agenticRaw = getRawScore(agenticSheets, best);
-    const communalRaw = getRawScore(communalSheets, best);
+    const a = normalize(getRawScore(agenticSheets, best));
+    const c = normalize(getRawScore(communalSheets, best));
 
-    const agenticScore = normalize(agenticRaw);
-    const communalScore = normalize(communalRaw);
+    const label = a > c ? "More Agentic" : c > a ? "More Communal" : "Balanced";
 
-    let result = '';
-    if (agenticScore > communalScore) result = 'More Agentic';
-    else if (communalScore > agenticScore) result = 'More Communal';
-    else result = 'Balanced';
+    document.getElementById("output").innerText =
+      `${label} (${best}) | A: ${a.toFixed(2)} vs C: ${c.toFixed(2)}`;
 
-    document.getElementById('output').innerText =
-      `${result} (${best}) | A: ${agenticScore.toFixed(2)} vs C: ${communalScore.toFixed(2)}`;
-
-    renderChart(agenticScore, communalScore);
+    renderChart(a, c);
   }
 }
 
-function renderChart(agentic, communal) {
-  const ctx = document.getElementById('chart');
+// Chart
+function renderChart(a, c) {
+  const ctx = document.getElementById("chart");
 
   if (chart) chart.destroy();
 
   chart = new Chart(ctx, {
-    type: 'bar',
+    type: "bar",
     data: {
-      labels: ['Agentic', 'Communal'],
-      datasets: [{
-        label: 'Normalized Score',
-        data: [agentic, communal]
-      }]
+      labels: ["Agentic","Communal"],
+      datasets: [{ label:"Score", data:[a,c] }]
     },
     options: {
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: 1
-        }
-      }
+      scales: { y: { beginAtZero:true, max:1 } }
     }
   });
 }
