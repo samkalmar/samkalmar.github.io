@@ -16,18 +16,18 @@
       gap: var(--space-md);
     }
 
-    .chat-header {
-      text-align: center;
-    }
+    .chat-header { text-align: center; }
 
     .chat-header h1 {
       font-family: var(--font-display);
       font-size: clamp(1.6rem, 4vw, 2.2rem);
       font-weight: 800;
       letter-spacing: -0.03em;
-      color: var(--text);
+      color: var(--dark);
       margin-bottom: 0.4em;
     }
+
+    .chat-header h1 span { color: var(--navy); }
 
     .chat-header p {
       color: var(--muted);
@@ -36,7 +36,7 @@
 
     /* ── Message window ───────────────────────────────── */
     .chat-window {
-      background: rgba(17, 24, 39, 0.60);
+      background: rgba(255, 255, 255, 0.55);
       border: 1px solid var(--border-strong);
       border-radius: var(--radius-lg);
       padding: var(--space-md);
@@ -49,12 +49,14 @@
       scroll-behavior: smooth;
     }
 
-    /* Scrollbar styling */
     .chat-window::-webkit-scrollbar { width: 5px; }
     .chat-window::-webkit-scrollbar-track { background: transparent; }
-    .chat-window::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 9px; }
+    .chat-window::-webkit-scrollbar-thumb {
+      background: var(--border-strong);
+      border-radius: 9px;
+    }
 
-    /* ── Individual messages ──────────────────────────── */
+    /* ── Messages ─────────────────────────────────────── */
     .msg {
       display: flex;
       flex-direction: column;
@@ -68,7 +70,7 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .msg--user { align-self: flex-end; align-items: flex-end; }
+    .msg--user { align-self: flex-end;   align-items: flex-end; }
     .msg--bot  { align-self: flex-start; align-items: flex-start; }
 
     .msg-bubble {
@@ -78,25 +80,27 @@
       line-height: 1.6;
     }
 
+    /* User — terracotta, white text */
     .msg--user .msg-bubble {
-      background: var(--accent);
-      color: #0f172a;
+      background: var(--terracotta);
+      color: #ffffff;
       border-bottom-right-radius: 4px;
     }
 
+    /* Bot — clean white card */
     .msg--bot .msg-bubble {
-      background: rgba(28, 60, 80, 0.90);
+      background: #ffffff;
       color: var(--text);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-strong);
       border-bottom-left-radius: 4px;
     }
 
-    /* Poem lines styled differently */
+    /* Poem — soft navy tint, italic */
     .msg--bot .msg-bubble.is-poem {
-      background: rgba(45, 38, 75, 0.80);
-      border-color: rgba(167, 139, 250, 0.30);
+      background: rgba(61, 90, 128, 0.08);
+      border-color: rgba(61, 90, 128, 0.28);
       font-style: italic;
-      color: var(--violet-hover, #c4b5fd);
+      color: var(--navy);
       white-space: pre-line;
     }
 
@@ -106,14 +110,14 @@
       padding: 0 0.25em;
     }
 
-    /* Typing indicator */
+    /* ── Typing indicator ─────────────────────────────── */
     .typing-indicator {
       display: flex;
       align-items: center;
       gap: 5px;
       padding: 0.65em 1em;
-      background: rgba(28, 60, 80, 0.90);
-      border: 1px solid var(--border);
+      background: #ffffff;
+      border: 1px solid var(--border-strong);
       border-radius: 14px;
       border-bottom-left-radius: 4px;
       width: fit-content;
@@ -123,7 +127,7 @@
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: var(--muted);
+      background: var(--sky);
       animation: blink 1.2s infinite;
     }
     .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
@@ -145,8 +149,8 @@
       flex: 1;
       padding: 0.7em 1em;
       border-radius: var(--radius-sm);
-      border: 1px solid var(--border-strong);
-      background: rgba(17, 24, 39, 0.80);
+      border: 1.5px solid var(--border-strong);
+      background: #ffffff;
       color: var(--text);
       font-family: var(--font-body);
       font-size: 0.95rem;
@@ -155,8 +159,8 @@
     }
 
     .chat-input-row input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(91, 156, 246, 0.25);
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(61, 90, 128, 0.18);
       outline: none;
     }
 
@@ -175,21 +179,27 @@
       gap: 0.5rem;
     }
 
+    /* Chips override the global button style */
     .chip {
-      background: rgba(91, 156, 246, 0.10);
-      border: 1px solid rgba(91, 156, 246, 0.25);
-      color: var(--accent-hover);
-      border-radius: 999px;
-      padding: 0.25em 0.85em;
-      font-size: 0.78rem;
-      font-weight: 500;
+      background: rgba(61, 90, 128, 0.08) !important;
+      color: var(--navy) !important;
+      border: 1px solid rgba(61, 90, 128, 0.28) !important;
+      border-radius: 999px !important;
+      padding: 0.25em 0.85em !important;
+      font-size: 0.78rem !important;
+      font-weight: 500 !important;
+      box-shadow: none !important;
+      transform: none !important;
       cursor: pointer;
-      transition: background 0.2s, border-color 0.2s;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
     }
 
     .chip:hover {
-      background: rgba(91, 156, 246, 0.20);
-      border-color: var(--accent-hover);
+      background: rgba(61, 90, 128, 0.18) !important;
+      color: var(--dark) !important;
+      border-color: var(--navy) !important;
+      box-shadow: none !important;
+      transform: none !important;
     }
 
     @media (max-width: 480px) {
@@ -205,7 +215,7 @@
     <div class="chat-wrap">
 
       <div class="chat-header">
-        <h1>Poetry <span style="color:var(--accent-hover)">Bot</span></h1>
+        <h1>Poetry <span>Bot</span></h1>
         <p>Give me a word and I'll write you a poem. Or just say hello.</p>
       </div>
 
@@ -238,10 +248,6 @@
   <script>
   (function () {
 
-    /* ── Poem templates ────────────────────────────────────
-       Each template is a function that receives the word
-       and returns a 5-line poem string.
-    ──────────────────────────────────────────────────────── */
     const poemTemplates = [
       w => `In the quiet of the ${w},
 A whisper finds its way,
@@ -286,9 +292,7 @@ It weathers winds and rains,
 The ${w} in everything that stays.`,
     ];
 
-    /* ── Greetings ────────────────────────────────────── */
     const greetingTriggers = ["hello", "hi", "hey", "howdy", "greetings", "good morning", "good evening", "good afternoon", "sup", "what's up", "hiya"];
-
     const greetingReplies = [
       "Hello! Give me a word and I'll spin it into a poem for you.",
       "Hey there! I'm ready to versify — just drop a word.",
@@ -297,9 +301,7 @@ The ${w} in everything that stays.`,
       "Hello, hello! What word shall we turn into poetry today?",
     ];
 
-    /* ── Compliments ──────────────────────────────────── */
     const complimentTriggers = ["amazing", "awesome", "great", "good job", "well done", "brilliant", "wonderful", "love you", "you're the best", "fantastic", "incredible", "nice", "beautiful", "smart", "clever", "thank", "thanks", "ty"];
-
     const complimentReplies = [
       "Aw, you're far too kind — but I won't argue. Now, give me a word to poeticize!",
       "That warms my algorithmic heart. Want a poem to celebrate?",
@@ -308,9 +310,7 @@ The ${w} in everything that stays.`,
       "Thank you! I promise to channel that good energy into your next poem.",
     ];
 
-    /* ── Poem request detection ───────────────────────── */
     function extractPoemWord(input) {
-      // Patterns: "poem about X", "write X", "make a poem about X", or bare single word
       const patterns = [
         /poem\s+(?:about\s+)?(.+)/i,
         /write\s+(?:a\s+poem\s+(?:about\s+)?)?(.+)/i,
@@ -322,59 +322,36 @@ The ${w} in everything that stays.`,
         const m = input.match(re);
         if (m) return m[1].trim().replace(/[^a-zA-Z\s]/g, "").trim().split(/\s+/)[0];
       }
-      // Single word input — treat it as the poem subject
       const cleaned = input.trim().replace(/[^a-zA-Z]/g, "");
       if (cleaned && input.trim().split(/\s+/).length === 1) return cleaned;
       return null;
     }
 
-    function pickRandom(arr) {
-      return arr[Math.floor(Math.random() * arr.length)];
-    }
+    function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
     function matchesTrigger(input, triggers) {
       const lower = input.toLowerCase();
       return triggers.some(t => lower.includes(t));
     }
 
-    /* ── Bot reply logic ──────────────────────────────── */
     function getBotReply(userInput) {
       const trimmed = userInput.trim();
       if (!trimmed) return { text: "I didn't catch that — try a word or a greeting!", isPoem: false };
-
-      // Greeting
-      if (matchesTrigger(trimmed, greetingTriggers)) {
-        return { text: pickRandom(greetingReplies), isPoem: false };
-      }
-
-      // Compliment
-      if (matchesTrigger(trimmed, complimentTriggers)) {
-        return { text: pickRandom(complimentReplies), isPoem: false };
-      }
-
-      // Poem request
+      if (matchesTrigger(trimmed, greetingTriggers))   return { text: pickRandom(greetingReplies),   isPoem: false };
+      if (matchesTrigger(trimmed, complimentTriggers)) return { text: pickRandom(complimentReplies), isPoem: false };
       const word = extractPoemWord(trimmed);
-      if (word) {
-        const poem = pickRandom(poemTemplates)(word.toLowerCase());
-        return { text: poem, isPoem: true };
-      }
-
-      // Fallback
-      return {
-        text: `Hmm, I'm not sure what to do with "${trimmed}". Try typing a single word and I'll write a poem about it!`,
-        isPoem: false,
-      };
+      if (word) return { text: pickRandom(poemTemplates)(word.toLowerCase()), isPoem: true };
+      return { text: `Hmm, I'm not sure what to do with "${trimmed}". Try typing a single word and I'll write a poem about it!`, isPoem: false };
     }
 
-    /* ── DOM helpers ──────────────────────────────────── */
     const chatWindow = document.getElementById("chatWindow");
     const chatInput  = document.getElementById("chatInput");
 
     function addMessage(text, role, isPoem) {
-      const wrap = document.createElement("div");
+      const wrap   = document.createElement("div");
       wrap.className = `msg msg--${role}`;
 
-      const label = document.createElement("span");
+      const label  = document.createElement("span");
       label.className = "msg-label";
       label.textContent = role === "user" ? "You" : "Poetry Bot";
 
@@ -412,37 +389,28 @@ The ${w} in everything that stays.`,
       if (el) el.remove();
     }
 
-    /* ── Send flow ────────────────────────────────────── */
     function handleSend() {
       const value = chatInput.value.trim();
       if (!value) return;
-
       addMessage(value, "user", false);
       chatInput.value = "";
-
       addTypingIndicator();
-
-      // Simulate a short thinking delay
-      const delay = 600 + Math.random() * 600;
       setTimeout(function () {
         removeTypingIndicator();
         const reply = getBotReply(value);
         addMessage(reply.text, "bot", reply.isPoem);
-      }, delay);
+      }, 600 + Math.random() * 600);
     }
 
-    // Send on Enter key
     chatInput.addEventListener("keydown", function (e) {
       if (e.key === "Enter") handleSend();
     });
 
-    // Chip helper (called from inline onclick)
     window.sendChip = function (text) {
       chatInput.value = text;
       handleSend();
     };
 
-    // Opening greeting from bot
     setTimeout(function () {
       addMessage("Hello! I'm your Poetry Bot. Type any word and I'll write you a five-line poem. Or just say hi!", "bot", false);
     }, 400);
