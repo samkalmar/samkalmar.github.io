@@ -10,6 +10,7 @@
     { label: "Experience", href: "experience.html" },
     { label: "Contact",    href: "contact.html" },
     { label: "JO App",     href: "app.html" },
+    { label: "Poetry Bot", href: "chatbot.html" }
   ];
 
   /* ── Build the header HTML ─────────────────────────────── */
